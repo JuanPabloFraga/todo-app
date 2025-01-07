@@ -29,18 +29,20 @@ public class TodoDTO {
     @FutureOrPresent(message = "Due date must be in the future or today")
     private LocalDate dueDate;
 
+    private Long usuarioId;
     // Constructor vacío
     public TodoDTO() {
     }
 
     // Constructor con parámetros
-    public TodoDTO(Long id, String title, String description, boolean completed, String priority, LocalDate dueDate) {
+    public TodoDTO(Long id, String title, String description, boolean completed, String priority, LocalDate dueDate, Long usuarioId ) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.completed = completed;
         this.priority = priority;
         this.dueDate = dueDate;
+        this.usuarioId = usuarioId;
     }
 
     // Getters y Setters
@@ -83,4 +85,22 @@ public class TodoDTO {
     public void setPriority(String priority) {
     	this.priority = priority;
     }
+
+	public LocalDate getDueDate() {
+		return dueDate;
+	}
+
+	public void setDueDate(LocalDate dueDate) {
+		this.dueDate = dueDate;
+	}
+
+	public Long getUsuarioId() {
+		return usuarioId;
+	}
+
+	public void setUsuarioId(Long usuarioId) {
+		this.usuarioId = usuarioId;
+	}
+    
+    
 }

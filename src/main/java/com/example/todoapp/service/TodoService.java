@@ -2,7 +2,10 @@ package com.example.todoapp.service;
 
 import com.example.todoapp.dto.TodoDTO;
 import com.example.todoapp.model.Todo;
+import com.example.todoapp.model.Usuario;
 import com.example.todoapp.repository.TodoRepository;
+import com.example.todoapp.repository.UsuarioRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.todoapp.exception.ResourceNotFoundException;
@@ -22,20 +25,36 @@ public class TodoService {
 
     @Autowired
     private TodoRepository todoRepository;
+   
+    @Autowired
+    private UsuarioService usuarioService;
+
+
+    // Constructor que inyecta el repositorio
+    public TodoService(TodoRepository todoRepository) {
+        this.todoRepository = todoRepository;
+    }
 
     // Método para obtener todos los Todo
     public List<TodoDTO> getAllTodos() {
         return todoRepository.findAll().stream()
-                .map(todo -> new TodoDTO(todo.getId(), todo.getTitle(), todo.getDescription(), todo.isCompleted(), todo.getPriority(), todo.getDueDate()))
+                .map(todo -> new TodoDTO(todo.getId(), todo.getTitle(), todo.getDescription(), todo.isCompleted(), todo.getPriority(), todo.getDueDate(), todo.getUsuario().getId()))
                 .collect(Collectors.toList());
     }
 
     // Método para agregar un nuevo Todo
-    public TodoDTO addTodo(TodoDTO todoDTO) {
-        Todo todo = new Todo(todoDTO.getId(), todoDTO.getTitle(), todoDTO.getDescription(), todoDTO.isCompleted(),todoDTO.getPriority());
+    public TodoDTO addTodo(TodoDTO todoDTO, Usuario usuario) {
+        // Crear y asociar la tarea al usuario
+        Todo todo = new Todo(todoDTO.getId(), todoDTO.getTitle(), todoDTO.getDescription(),
+                             todoDTO.isCompleted(), todoDTO.getPriority(), todoDTO.getDueDate(),usuario);
+       
+
         Todo savedTodo = todoRepository.save(todo);
-        return new TodoDTO(savedTodo.getId(), savedTodo.getTitle(), savedTodo.getDescription(), savedTodo.isCompleted(), savedTodo.getPriority(),savedTodo.getDueDate());
+
+        return new TodoDTO(savedTodo.getId(), savedTodo.getTitle(), savedTodo.getDescription(),
+                           savedTodo.isCompleted(), savedTodo.getPriority(), savedTodo.getDueDate(), usuario.getId());
     }
+
     // Método para marcar una tarea como completada
     public Todo markAsCompleted(Long id) {
         Optional<Todo> todoOptional = todoRepository.findById(id);
@@ -123,7 +142,9 @@ public class TodoService {
         }
         return createdTodos;
     }
-
+    public Todo getTodoById(Long id) {
+        return todoRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Todo not found"));
+    }
 
     // Aquí puedes agregar métodos para actualizar, eliminar, etc.
 }

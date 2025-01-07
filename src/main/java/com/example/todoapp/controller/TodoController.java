@@ -20,9 +20,14 @@ public class TodoController {
     @Autowired
     private TodoService todoService;
 
-    @GetMapping("/todos")
+    @GetMapping()
     public List<TodoDTO> getAllTodos() {
         return todoService.getAllTodos();
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Todo> getTodoById(@PathVariable Long id) {
+        Todo todo = todoService.getTodoById(id);
+        return ResponseEntity.ok(todo);
     }
 
     @PostMapping

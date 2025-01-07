@@ -1,0 +1,19 @@
+
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: root1234       # Contraseña para el usuario root
+      MYSQL_DATABASE: todo_app            # Nombre de la base de datos a crear
+      MYSQL_USER: root                    # Usuario con privilegios en la base de datos
+      MYSQL_PASSWORD: root1234            # Contraseña para el usuario root
+    ports:
+      - "3306:3306"                       # Mapea el puerto 3306 del contenedor al 3306 de tu máquina
+    networks:
+      - todo-network
+
+networks:
+  todo-network:
+    driver: bridge

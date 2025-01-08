@@ -3,6 +3,7 @@ package com.example.todoapp.service;
 import com.example.todoapp.dto.CreateTodo;
 import com.example.todoapp.dto.TodoDTO;
 import com.example.todoapp.model.Todo;
+import com.example.todoapp.model.Usuario;
 import com.example.todoapp.dto.UsuarioDTO;
 import com.example.todoapp.repository.TodoRepository;
 import com.example.todoapp.repository.UsuarioRepository;
@@ -30,7 +31,7 @@ public class TodoService {
     @Autowired
     private UsuarioService usuarioService;
 
-
+    private UsuarioRepository usuarioRepository;
     // Constructor que inyecta el repositorio
     public TodoService(TodoRepository todoRepository) {
         this.todoRepository = todoRepository;
@@ -44,18 +45,22 @@ public class TodoService {
     }
 
     // Método para agregar un nuevo Todo
-    public TodoDTO addTodo(CreateTodo todoCreate , Long id) {
+    public TodoDTO addTodo(CreateTodo todoCreate ) {
     	
-    	UsuarioDTO usuario = usuarioService.getUsuarioById(id);
-        // Crear y asociar la tarea al UsuarioDTO
-        Todo todo = new Todo(todoDTO.getId(), todoDTO.getTitle(), todoDTO.getDescription(),
-                             todoDTO.isCompleted(), todoDTO.getPriority(), todoDTO.getDueDate(),UsuarioDTO);
-       
+    	Usuario usuario = usuarioRepository.findById(todoCreate.getIdUsuario())
+    	        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        Todo savedTodo = todoRepository.save(todo);
-
-        return new TodoDTO(savedTodo.getId(), savedTodo.getTitle(), savedTodo.getDescription(),
-                           savedTodo.isCompleted(), savedTodo.getPriority(), savedTodo.getDueDate(), UsuarioDTO.getId());
+    	    Todo nuevoTodo = new Todo(
+    	         // ID generado automáticamente
+    	        todoCreate.getTitle(),
+    	        todoCreate.getDescripcion(),
+    	        false, // Marcado como no completado inicialmente
+    	        todoCreate.getPrioridad(),
+    	        todoCreate.getDueDate(),
+    	        usuario
+    	    );
+    	 Todo   savedTodo = todoRepository.save(nuevoTodo);
+    	    return new TodoDTO(savedTodo);
     }
 
     // Método para marcar una tarea como completada

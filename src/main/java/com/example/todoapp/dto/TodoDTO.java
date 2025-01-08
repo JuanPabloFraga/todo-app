@@ -2,6 +2,8 @@ package com.example.todoapp.dto;
 
 import java.time.LocalDate;
 
+import com.example.todoapp.model.Todo;
+
 import jakarta.validation.constraints.*;
 import jakarta.validation.constraints.Pattern;
 
@@ -43,6 +45,17 @@ public class TodoDTO {
         this.priority = priority;
         this.dueDate = dueDate;
         this.usuarioId = usuarioId;
+    }
+    
+    public TodoDTO(Todo todo) {
+    	this.id = todo.getId();
+    	this.title = todo.getTitle();
+    	this.description = todo.getDescription();
+    	this.completed = todo.isCompleted();
+    	this.priority = todo.getPriority();
+    	this.dueDate = todo.getDueDate();
+    	this.usuarioId = todo.getUsuario().getId();
+    	
     }
 
     // Getters y Setters

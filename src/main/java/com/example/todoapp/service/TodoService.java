@@ -1,8 +1,9 @@
 package com.example.todoapp.service;
 
+import com.example.todoapp.dto.CreateTodo;
 import com.example.todoapp.dto.TodoDTO;
 import com.example.todoapp.model.Todo;
-import com.example.todoapp.model.Usuario;
+import com.example.todoapp.dto.UsuarioDTO;
 import com.example.todoapp.repository.TodoRepository;
 import com.example.todoapp.repository.UsuarioRepository;
 
@@ -43,16 +44,18 @@ public class TodoService {
     }
 
     // Método para agregar un nuevo Todo
-    public TodoDTO addTodo(TodoDTO todoDTO, Usuario usuario) {
-        // Crear y asociar la tarea al usuario
+    public TodoDTO addTodo(CreateTodo todoCreate , Long id) {
+    	
+    	UsuarioDTO usuario = usuarioService.getUsuarioById(id);
+        // Crear y asociar la tarea al UsuarioDTO
         Todo todo = new Todo(todoDTO.getId(), todoDTO.getTitle(), todoDTO.getDescription(),
-                             todoDTO.isCompleted(), todoDTO.getPriority(), todoDTO.getDueDate(),usuario);
+                             todoDTO.isCompleted(), todoDTO.getPriority(), todoDTO.getDueDate(),UsuarioDTO);
        
 
         Todo savedTodo = todoRepository.save(todo);
 
         return new TodoDTO(savedTodo.getId(), savedTodo.getTitle(), savedTodo.getDescription(),
-                           savedTodo.isCompleted(), savedTodo.getPriority(), savedTodo.getDueDate(), usuario.getId());
+                           savedTodo.isCompleted(), savedTodo.getPriority(), savedTodo.getDueDate(), UsuarioDTO.getId());
     }
 
     // Método para marcar una tarea como completada
@@ -135,13 +138,23 @@ public class TodoService {
         return todoRepository.saveAll(todos);
     }
     
-    public List<TodoDTO> addMultipleTodos(List<TodoDTO> todoDTOs) {
-        List<TodoDTO> createdTodos = new ArrayList<>();
-        for (TodoDTO todoDTO : todoDTOs) {
-            createdTodos.add(addTodo(todoDTO)); // Esto reutiliza el método que ya tienes para agregar una tarea
-        }
-        return createdTodos;
+    @Transactional
+    public List<Todo> markMultipleAsCompleted(List<Long> ids, UsuarioDTO usuarioDTO) {
+        // Obtener todas las tareas por sus IDs
+        List<Todo> todos = todoRepository.findAllById(ids);
+
+        // Filtrar solo las tareas que pertenezcan al UsuarioDTO autenticado
+        List<Todo> userTodos = todos.stream()
+                                    .filter(todo -> todo.getUsuario().getId().equals(usuarioDTO.getId()))
+                                    .collect(Collectors.toList());
+
+        // Marcar como completadas
+        userTodos.forEach(todo -> todo.setCompleted(true));
+
+        // Guardar los cambios
+        return todoRepository.saveAll(userTodos);
     }
+
     public Todo getTodoById(Long id) {
         return todoRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Todo not found"));
     }

@@ -78,5 +78,25 @@ public class Usuario implements UserDetails {
 	public void setId(Long id) {
 		this.id = id;
 	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public List<Todo> getTodos() {
+		return todos;
+	}
+
+	public void setTodos(List<Todo> todos) {
+		this.todos = todos;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
     
 }

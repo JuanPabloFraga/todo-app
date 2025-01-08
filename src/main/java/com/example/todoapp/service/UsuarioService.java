@@ -1,43 +1,58 @@
 package com.example.todoapp.service;
 
+import com.example.todoapp.dto.UsuarioDTO;
 import com.example.todoapp.model.Usuario;
 import com.example.todoapp.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UsuarioService {
 
-    private final UsuarioRepository usuarioRepository;
-
     @Autowired
-    public UsuarioService(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
+    private UsuarioRepository usuarioRepository;
+
+    public UsuarioDTO createUsuario(UsuarioDTO usuarioDTO) {
+        Usuario usuario = new Usuario(
+                usuarioDTO.getUsername(),
+                usuarioDTO.getEmail(),
+                null // Password gestionado en el flujo de autenticación
+        );
+        Usuario savedUsuario = usuarioRepository.save(usuario);
+        return new UsuarioDTO(savedUsuario);
     }
 
-    // Método para guardar un nuevo usuario
-    public Usuario saveUsuario(Usuario usuario) {
-        return usuarioRepository.save(usuario);
+    public List<UsuarioDTO> getAllUsuarios() {
+        return usuarioRepository.findAll()
+                .stream()
+                .map(UsuarioDTO::new)
+                .collect(Collectors.toList());
     }
 
-    // Método para buscar un usuario por ID
-    public Optional<Usuario> getUsuarioById(Long id) {
-        return usuarioRepository.findById(id);
+    public UsuarioDTO getUsuarioById(Long id) {
+        // Buscar la entidad Usuario
+        Usuario usuario = usuarioRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Convertir la entidad en un DTO antes de devolverla
+        return new UsuarioDTO(usuario);
     }
 
-    // Método para buscar un usuario por su nombre de usuario
-    public Optional<Usuario> getUsuarioByUsername(String username) {
-        return usuarioRepository.findByUsername(username);
+    public UsuarioDTO updateUsuario(Long id, UsuarioDTO usuarioDTO) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        usuario.setUsername(usuarioDTO.getUsername());
+        usuario.setEmail(usuarioDTO.getEmail());
+        // El password se gestiona en otro flujo si es necesario
+
+        Usuario updatedUsuario = usuarioRepository.save(usuario);
+        return new UsuarioDTO(updatedUsuario);
     }
 
-    // Método para buscar un usuario por email
-    public Optional<Usuario> getUsuarioByEmail(String email) {
-        return usuarioRepository.findByEmail(email);
-    }
-
-    // Método para eliminar un usuario
     public void deleteUsuario(Long id) {
         usuarioRepository.deleteById(id);
     }
